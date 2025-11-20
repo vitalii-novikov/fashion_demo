@@ -4,4 +4,4 @@ clip-model-safe/
 model-server/logs/
 model-server/model-store/
 model-server/temp/
-._pycache_/
+__pycache__/
