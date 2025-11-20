@@ -11,6 +11,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY main.py .
+COPY indexes/ /app/indexes/
 
 EXPOSE 8000
 ENV TORCHSERVE_URL=http://model-server:8080/predictions/clip
