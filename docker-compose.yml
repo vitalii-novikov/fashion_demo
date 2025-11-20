@@ -1,0 +1,29 @@
+services:
+  model-server:
+    build: ./model-server
+    command: [
+      "torchserve", "--start",
+      "--ncs",
+      "--model-store", "/home/model-server/model-store",
+      "--ts-config", "/home/model-server/config.properties",
+      "--models", "clip=clip.mar"
+    ]
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    volumes:
+      - ./model-server/model-store:/home/model-server/model-store
+      - ./model-server/config.properties:/home/model-server/config.properties
+      - ./model-server/logs:/home/model-server/logs
+    environment:
+      - TS_DISABLE_TOKEN_AUTHORIZATION=true
+
+
+  api:
+    build: ./api
+    depends_on:
+      - model-server
+    ports:
+      - "8000:8000"
+    environment:
+      - TORCHSERVE_URL=http://model-server:8080/predictions/clip

@@ -1,0 +1,7 @@
+data/embeddings_siglip.csv
+clip-model/
+clip-model-safe/
+model-server/logs/
+model-server/model-store/
+model-server/temp/
+._pycache_/
