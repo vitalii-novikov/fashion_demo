@@ -45,16 +45,24 @@ if uploaded:
                 st.json(result)
 
 
-# --- RECOMMENDATIONS UI ---
+# --- RECOMMENDATIONS ---
 st.header("2. Get recommendations")
 
-k = st.number_input("Number of recommendations:", min_value=1, max_value=30, value=8)
+k = st.number_input("Number of recommendations:", min_value=1, max_value=50, value=8)
 
-semi_random = st.checkbox("Enable semi-random mode")
-sort_before_random = False
+# Randomness slider: 0 = no random, 1 = fully random
+randomness = st.slider("Randomness level", 0.0, 1.0, 0.0)
 
-if semi_random:
-    sort_before_random = st.checkbox("Sort by distance before random selection", value=True)
+# Fetch dataset size from API (cached)
+@st.cache_data
+def fetch_dataset_size():
+    try:
+        r = requests.get(f"{API_URL}/dataset_size")
+        return r.json().get("size", 50000)
+    except:
+        return 50000  # fallback if API not responding
+
+dataset_size = fetch_dataset_size()
 
 
 if st.button("Get recommendations"):
@@ -62,12 +70,16 @@ if st.button("Get recommendations"):
         st.warning("Please classify an image first.")
     else:
 
-        # Semi-random logic
-        query_k = k * 2 if semi_random else k
+        # Compute d using the user formula
+        d = int(k * (1 + 5 * randomness))
+        d = min(dataset_size, d)
+        d = max(d, k)
+
+        st.info(f"Fetching top {d} candidates (dataset size = {dataset_size})")
 
         req = {
             "embedding": st.session_state.last_embedding,
-            "k": query_k
+            "k": d
         }
 
         with st.spinner("Searching for similar items..."):
@@ -76,19 +88,20 @@ if st.button("Get recommendations"):
         if r.status_code != 200:
             st.error(f"Error: {r.text}")
         else:
-            recs = r.json()["recommendations"]
+            candidates = r.json()["recommendations"]
 
-            # Apply semi-random post-processing
-            if semi_random:
-                if sort_before_random:
-                    recs = sorted(recs, key=lambda x: x["distance"])
-
-                recs = random.sample(recs, min(k, len(recs)))
+            # Pick n items:
+            if randomness == 0:
+                # Deterministic: take first n
+                recs = candidates[:k]
+            else:
+                # Random selection of n from d candidates
+                recs = random.sample(candidates, min(k, len(candidates)))
 
             # Render items in a 4-column grid
             st.subheader("Recommended items:")
 
-            # Custom CSS for card styling
+            # Custom card CSS (same as before)
             st.markdown("""
                 <style>
                     .item-card {

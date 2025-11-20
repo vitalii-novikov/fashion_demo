@@ -78,3 +78,8 @@ def recommend(req: EmbeddingRequest):
         results.append(item)
 
     return {"recommendations": results}
+
+@app.get("/dataset_size")
+def dataset_size():
+    return {"size": len(metadata)}
+
