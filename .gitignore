@@ -1,7 +1,9 @@
 data/embeddings_siglip.csv
+data/clip_embeddings_large.csv
 clip-model/
 clip-model-safe/
 model-server/logs/
 model-server/model-store/
 model-server/temp/
 __pycache__/
+.gitattributes
