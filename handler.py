@@ -13,7 +13,6 @@ STYLES = [
 
 class ClipHandler(BaseHandler):
     def initialize(self, ctx):
-        # Найти каталог модели с config.json
         model_dir = ctx.system_properties.get("model_dir")
         for name in os.listdir(model_dir):
             sub = os.path.join(model_dir, name)
@@ -55,13 +54,13 @@ class ClipHandler(BaseHandler):
             image_features = outputs.image_embeds
             text_features = outputs.text_embeds
 
-            # Нормализация
+            # Normalization
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)
             text_features = text_features / text_features.norm(dim=-1, keepdim=True)
 
-            # Косинусное сходство
+            # Cosine similarity
             sims = (image_features @ text_features.T).squeeze(0).cpu().numpy()
-            sims = sims.astype(float)  # гарантируем Python float для JSON
+            sims = sims.astype(float)
 
             # softmax
             probs = np.exp(sims) / np.sum(np.exp(sims))
