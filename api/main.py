@@ -12,12 +12,10 @@ from annoy import AnnoyIndex
 import wandb
 wandb.login(key="5b4751f4a9800484a36a7d6c7ed7e34c82345c5a")
 
-WANDB_RUN_NAME = "clip_inference_run"
-
 wandb_run = wandb.init(
     project="fashion-recommender",
     entity="fhtw",
-    name="dataset_clip_marking",
+    name="demo_fashion",
     mode="online",
     reinit=True
 )
